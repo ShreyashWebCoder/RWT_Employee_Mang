@@ -1,12 +1,13 @@
 const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
+const cors = require("cors")
 dotenv.config();
 const cloudinary = require("cloudinary").v2;
 
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
-
+app.use(cors());
 
 const authRouter = require("./routes/user.router");
 const postRouter = require("./routes/post.router");

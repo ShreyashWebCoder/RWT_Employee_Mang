@@ -18,7 +18,7 @@ exports.createPost = async (req, res) => {
             uploadDir: "./uploads",
             keepExtensions: true,
             maxFileSize: 10 * 1024 * 1024,
-        });
+        })
 
         form.parse(req, async (err, fields, files) => {
             if (err) {

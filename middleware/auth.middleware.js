@@ -1,4 +1,3 @@
-
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model'); 
 
@@ -36,70 +35,6 @@ const authMiddleware = async (req, res, next) => {
 };
 
 module.exports = authMiddleware;
-
-
-
-
-//  2nd
-// const User = require("../models/user.model")
-// const jwt = require("jsonwebtoken")
-
-// const authMiddleware = async (req, res, next) => {
-//     try {
-//         let token;
-        
-//         // Check for Bearer token in Authorization header
-//         const authHeader = req.headers.authorization;
-//         if (authHeader && authHeader.startsWith('Bearer ')) {
-//             token = authHeader.split(' ')[1];
-//         }
-        
-//         // If no Bearer token, check for token in cookies
-//         if (!token) {
-//             token = req.cookies.token;
-//         }
-
-//         if (!token) {
-//             return res.status(401).json({
-//                 success: false,
-//                 message: "Authentication required. Please login."
-//             });
-//         }
-
-        
-//         const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET)
-//         if (!decoded) {
-//             return res.status(401).json({
-//                 success: false,
-//                 message: "Invalid token!"
-//             });
-//         }
-
-//         const user = await User.findById(decoded.token);
-//         if (!user) {
-//             return res.status(401).json({
-//                 success: false,
-//                 message: "User not found!"
-//             });
-//         }
-//         req.user = user;
-//         next();
-
-//     } catch (error) {
-//         return res.status(401).json({
-//             success: false,
-//             message: "Authentication failed",
-//             error: error.message
-//         });
-//     }
-// }
-
-
-// module.exports = authMiddleware;
-
-
-
-
 
 
 //   1st 

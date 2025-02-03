@@ -13,12 +13,22 @@ cloudinary.config({
 // Create a new post
 exports.createPost = async (req, res) => {
     try {
+        const userExist = await User.findById(req.user);
+
+        if (!userExist) {
+            return res.status(400).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+        console.log(userExist);
+
         const form = new formidable.Formidable({
             multiples: false,
             uploadDir: "./uploads",
             keepExtensions: true,
             maxFileSize: 10 * 1024 * 1024,
-        })
+        });
 
         form.parse(req, async (err, fields, files) => {
             if (err) {
@@ -28,12 +38,11 @@ exports.createPost = async (req, res) => {
                     error: err.message,
                 });
             }
-            // const { text } = req.body
 
-            const textValue = Array.isArray(fields.text)
-                ? fields.text[0]
-                : fields.text;
-            if (!textValue || textValue.trim() === "") {
+            const { text } = fields;
+            const { media } = files;
+
+            if (!text || text.trim() === "") {
                 return res.status(400).json({
                     success: false,
                     message: "Text is required",
@@ -42,13 +51,12 @@ exports.createPost = async (req, res) => {
 
             let mediaUrl = null;
 
-            // Check if media is uploaded
-            if (files.media) {
+            // Check if media is uploaded            
+            if (media) {
                 try {
-                    const uploadResult = await cloudinary.uploader.upload(files.media.filepath, {
+                    const uploadResult = await cloudinary.uploader.upload(media.filepath, {
                         folder: "RWT_EmployeeMang/Posts",
                     });
-
                     mediaUrl = uploadResult.secure_url;
                 } catch (uploadError) {
                     return res.status(500).json({
@@ -59,29 +67,98 @@ exports.createPost = async (req, res) => {
                 }
             }
 
-            // Create new post
-            const newPost = new Post({
-                text: textValue,
+            const post = new Post({
+                text,
                 media: mediaUrl || null,
+                user: userExist._id,
             });
-            await newPost.save();
 
-            console.log(newPost);
-
-            return res.status(201).json({
+            await post.save();
+            return res.status(200).json({
                 success: true,
                 message: "Post created successfully",
-                post: newPost,
+                post,
             });
         });
+
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: "Internal server error",
-            error: error.message,
+            message: error.message,
         });
     }
-};
+}
+
+// exports.createPost = async (req, res) => {
+//     try {
+//         const form = new formidable.Formidable({
+//             multiples: false,
+//             uploadDir: "./uploads",
+//             keepExtensions: true,
+//             maxFileSize: 10 * 1024 * 1024,
+//         })
+
+//         form.parse(req, async (err, fields, files) => {
+//             if (err) {
+//                 return res.status(400).json({
+//                     success: false,
+//                     message: "Error parsing form data",
+//                     error: err.message,
+//                 });
+//             }
+
+//             const textValue = Array.isArray(fields.text)
+//                 ? fields.text[0]
+//                 : fields.text;
+//             if (!textValue || textValue.trim() === "") {
+//                 return res.status(400).json({
+//                     success: false,
+//                     message: "Text is required",
+//                 });
+//             }
+
+//             let mediaUrl = null;
+
+//             // Check if media is uploaded
+//             if (files.media) {
+//                 try {
+//                     const uploadResult = await cloudinary.uploader.upload(files.media.filepath, {
+//                         folder: "RWT_EmployeeMang/Posts",
+//                     });
+
+//                     mediaUrl = uploadResult.secure_url;
+//                 } catch (uploadError) {
+//                     return res.status(500).json({
+//                         success: false,
+//                         message: "Failed to upload media",
+//                         error: uploadError.message,
+//                     });
+//                 }
+//             }
+
+//             // Create new post
+//             const newPost = new Post({
+//                 text: textValue,
+//                 media: mediaUrl || null,
+//             });
+//             await newPost.save();
+
+//             console.log(newPost);
+
+//             return res.status(201).json({
+//                 success: true,
+//                 message: "Post created successfully",
+//                 post: newPost,
+//             });
+//         });
+//     } catch (error) {
+//         return res.status(500).json({
+//             success: false,
+//             message: "Internal server error",
+//             error: error.message,
+//         });
+//     }
+// };
 
 // Get all posts
 exports.getAllPosts = async (req, res) => {

@@ -1,18 +1,27 @@
 const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
-const cors = require("cors")
 dotenv.config();
+const cors = require("cors")
 const cloudinary = require("cloudinary").v2;
 
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
-app.use(cors());
+
+//  CORS
+const corsOptions = {
+    "origin": "*",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+    "credentials": true
+}
+app.use(cors(corsOptions));
+
+
 
 const authRouter = require("./routes/user.router");
 const postRouter = require("./routes/post.router");
 
-//Middleware
+//  Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
@@ -23,6 +32,7 @@ app.get("/", (req, res) => {
     res.send("Server Start !")
 })
 
+//  Routes
 app.use("/api/auth", authRouter);
 app.use("/post", postRouter)
 
